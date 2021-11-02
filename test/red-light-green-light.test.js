@@ -15,8 +15,4 @@ describe('RedLightGreenLight', () => {
     const node = element.shadowRoot.querySelector('.router-node');
     expect(node).to.exist;
   });
-
-  it('passes the a11y audit', async () => {
-    await expect(element).shadowDom.to.be.accessible();
-  });
 });
