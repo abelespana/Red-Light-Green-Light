@@ -62,9 +62,23 @@ export class Gamepage extends LitElement {
     }, timeout);
   }
 
+  updateGreenLight() {
+    if (this.score === 0) {
+      this.updateLightsTimer(10000);
+    } else {
+      let timer = 10000;
+      for (let i = 0; i < this.score; i++) {
+        timer = timer - 100;
+      }
+      timer = timer < 2000 ? 2000 : timer;
+      this.updateLightsTimer(timer);
+    }
+  }
+
   updateScore(e) {
     // Only get points if light is green. Otherwise, set points to 0
     if (this.currentLight === 'green') {
+      this.updateGreenLight();
       // Add one point if the button is different from the one previously clicked. Otherwise, subtract one point
       if (this.lastButtonPressed !== e.detail.buttonId) {
         this.score = this.score + 1;
@@ -75,13 +89,14 @@ export class Gamepage extends LitElement {
       }
     } else {
       this.score = 0;
+      this.updateLightsTimer(this.initialTimeout);
     }
   }
 
   render() {
     return html`
       <app-header></app-header>
-      <span>Puntuacion: ${this.score}</span>
+      <span>Puntos: ${this.score}</span>
       <app-lights currentLight="${this.currentLight}"></app-lights>
       <div class="game__buttons">
         <app-button
@@ -93,7 +108,7 @@ export class Gamepage extends LitElement {
           @button-click="${this.updateScore}"
         ></app-button>
       </div>
-      <small>Puntuación máxima: ${this.maxScore}</small>
+      <small>Máxima puntuación: ${this.maxScore}</small>
     `;
   }
 }
