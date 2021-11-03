@@ -10,6 +10,8 @@ export class Gamepage extends LitElement {
       lastButtonPressed: { type: String },
       score: { type: Number },
       maxScore: { type: Number },
+      initialTimeout: { type: Number },
+      interval: { type: Number },
     };
   }
 
@@ -36,16 +38,17 @@ export class Gamepage extends LitElement {
     this.currentLight = 'green';
     this.score = 0;
     this.maxScore = 0;
+    this.initialTimeout = 3000;
   }
 
   firstUpdated() {
-    this.updateCurrentLight();
+    this.updateLightsTimer(this.initialTimeout);
   }
 
-  retrieveMaxScore() {}
-
-  updateCurrentLight() {
-    setInterval(() => {
+  updateLightsTimer(timeout) {
+    // console.log(`timeout fijado en ${timeout}`);
+    clearInterval(this.interval);
+    this.interval = setInterval(() => {
       switch (this.currentLight) {
         case 'green':
           this.currentLight = 'red';
@@ -56,11 +59,11 @@ export class Gamepage extends LitElement {
         default:
           break;
       }
-    }, 3000);
+    }, timeout);
   }
 
   updateScore(e) {
-    // Only get point if light is green. Otherwise, set points to 0
+    // Only get points if light is green. Otherwise, set points to 0
     if (this.currentLight === 'green') {
       // Add one point if the button is different from the one previously clicked. Otherwise, subtract one point
       if (this.lastButtonPressed !== e.detail.buttonId) {
