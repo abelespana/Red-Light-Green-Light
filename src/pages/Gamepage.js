@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import '../components/Lights.js';
 import '../components/Header.js';
+import '../components/Button.js';
 
 export class Gamepage extends LitElement {
   static get properties() {
@@ -58,14 +59,14 @@ export class Gamepage extends LitElement {
     }, 3000);
   }
 
-  increaseScore(event) {
+  updateScore(e) {
     // Only get point if light is green. Otherwise, set points to 0
     if (this.currentLight === 'green') {
       // Add one point if the button is different from the one previously clicked. Otherwise, subtract one point
-      if (this.lastButtonPressed !== event.target.value) {
+      if (this.lastButtonPressed !== e.detail.buttonId) {
         this.score = this.score + 1;
         this.maxScore = this.score;
-        this.lastButtonPressed = event.target.value;
+        this.lastButtonPressed = e.detail.buttonId;
       } else {
         this.score = this.score === 0 ? (this.score = 0) : this.score - 1;
       }
@@ -80,8 +81,14 @@ export class Gamepage extends LitElement {
       <span>Puntuacion: ${this.score}</span>
       <app-lights currentLight="${this.currentLight}"></app-lights>
       <div class="game__buttons">
-        <button value="left" @click="${this.increaseScore}">Left</button>
-        <button value="right" @click="${this.increaseScore}">Right</button>
+        <app-button
+          value="left"
+          @button-click="${this.updateScore}"
+        ></app-button>
+        <app-button
+          value="right"
+          @button-click="${this.updateScore}"
+        ></app-button>
       </div>
       <small>Puntuación máxima: ${this.maxScore}</small>
     `;
