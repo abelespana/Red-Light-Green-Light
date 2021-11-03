@@ -34,6 +34,7 @@ export class Homepage extends LitElement {
   addNewUser() {
     this.usernameValid = validateUsername(this.username);
     if (this.usernameValid) {
+      localStorage.setItem('username', this.username);
       Router.go('/game');
     } else {
       Swal.fire({
