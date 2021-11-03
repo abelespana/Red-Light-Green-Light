@@ -14,6 +14,7 @@ export class Homepage extends LitElement {
   static get styles() {
     return css`
       .form {
+        padding-top: 100px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;

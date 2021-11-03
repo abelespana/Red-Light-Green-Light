@@ -7,7 +7,7 @@ import '../components/Button.js';
 export class Gamepage extends LitElement {
   static get properties() {
     return {
-      username: { type: String },
+      currentUser: { type: String },
       currentLight: { type: String },
       lastButtonPressed: { type: String },
       score: { type: Number },
@@ -37,7 +37,6 @@ export class Gamepage extends LitElement {
 
   constructor() {
     super();
-    this.username = '';
     this.currentLight = 'green';
     this.score = 0;
     this.maxScore = 0;
@@ -80,7 +79,15 @@ export class Gamepage extends LitElement {
   }
 
   retrieveUsername() {
-    this.username = localStorage.getItem('username') || '';
+    this.currentUser = localStorage.getItem('username') || '';
+    if (this.currentUser !== '') {
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      const userFound = users.find(user => user.name === this.currentUser);
+      if (userFound) {
+        this.score = userFound.score;
+        this.maxScore = userFound.maxScore;
+      }
+    }
   }
 
   updateScore(e) {
@@ -102,14 +109,43 @@ export class Gamepage extends LitElement {
   }
 
   handleLogout() {
-    localStorage.removeItem('username');
+    this.addOrUpdateUser();
     Router.go('/home');
+  }
+
+  addOrUpdateUser() {
+    // Before logging out, create the current user with its points
+    const currentUser = {
+      name: this.currentUser,
+      score: this.score,
+      maxScore: this.maxScore,
+    };
+    // Retrieve the users saved in localStorage
+    let users = JSON.parse(localStorage.getItem('users'));
+    if (!users) {
+      // No previous users, create the whole property with one entry in localStorage
+      users = [];
+      users.push(currentUser);
+      localStorage.setItem('users', JSON.stringify(users));
+    } else {
+      // There are users, find if there is one that can be updated
+      const userFound = users.find(user => user.name === currentUser.name);
+      if (userFound) {
+        // User can be updated with its latest score
+        const index = users.findIndex(user => user.name === currentUser.name);
+        users[index] = currentUser;
+      } else {
+        // No previous user with that name, just add it to the list
+        users.push(currentUser);
+      }
+      localStorage.setItem('users', JSON.stringify(users));
+    }
   }
 
   render() {
     return html`
       <app-header
-        username="${this.username}"
+        username="${this.currentUser}"
         iconName="log-out"
         @logout="${this.handleLogout}"
       >
