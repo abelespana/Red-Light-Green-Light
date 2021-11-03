@@ -1,0 +1,21 @@
+{
+  "name": "Red Light, Green Light",
+  "short_name": "RLGL",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#2A3443",
+  "description": "PWA Technical challenge",
+  "theme_color": "#2A3443",
+  "icons": [
+    {
+      "src": "./img/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./img/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
