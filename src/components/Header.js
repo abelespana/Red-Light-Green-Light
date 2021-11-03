@@ -1,10 +1,10 @@
 import { LitElement, html, css } from 'lit';
-import { Router } from '@vaadin/router';
 
 export class Header extends LitElement {
   static get properties() {
     return {
       username: { type: String },
+      iconName: { type: String },
     };
   }
 
@@ -31,20 +31,15 @@ export class Header extends LitElement {
   }
 
   logout() {
-    localStorage.removeItem('username');
-    Router.go('/home');
-  }
-
-  firstUpdated() {
-    const savedUsername = localStorage.getItem('username');
-    this.username = savedUsername || '';
+    const logoutEvent = new CustomEvent('logout');
+    this.dispatchEvent(logoutEvent);
   }
 
   render() {
     return html`
       <header class="header">
         <p>${this.username}</p>
-        <ion-icon name="log-out" size="large" @click="${this.logout}">
+        <ion-icon name="${this.iconName}" size="large" @click="${this.logout}">
         </ion-icon>
       </header>
     `;

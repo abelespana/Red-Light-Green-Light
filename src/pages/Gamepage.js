@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import { Router } from '@vaadin/router';
 import '../components/Lights.js';
 import '../components/Header.js';
 import '../components/Button.js';
@@ -6,10 +7,13 @@ import '../components/Button.js';
 export class Gamepage extends LitElement {
   static get properties() {
     return {
+      currentUser: { type: String },
       currentLight: { type: String },
       lastButtonPressed: { type: String },
       score: { type: Number },
       maxScore: { type: Number },
+      initialTimeout: { type: Number },
+      interval: { type: Number },
     };
   }
 
@@ -36,16 +40,18 @@ export class Gamepage extends LitElement {
     this.currentLight = 'green';
     this.score = 0;
     this.maxScore = 0;
+    this.initialTimeout = 3000;
   }
 
   firstUpdated() {
-    this.updateCurrentLight();
+    this.updateLightsTimer(this.initialTimeout);
+    this.retrieveUsername();
   }
 
-  retrieveMaxScore() {}
-
-  updateCurrentLight() {
-    setInterval(() => {
+  updateLightsTimer(timeout) {
+    // console.log(`timeout fijado en ${timeout}`);
+    clearInterval(this.interval);
+    this.interval = setInterval(() => {
       switch (this.currentLight) {
         case 'green':
           this.currentLight = 'red';
@@ -56,12 +62,38 @@ export class Gamepage extends LitElement {
         default:
           break;
       }
-    }, 3000);
+    }, timeout);
+  }
+
+  updateGreenLight() {
+    if (this.score === 0) {
+      this.updateLightsTimer(10000);
+    } else {
+      let timer = 10000;
+      for (let i = 0; i < this.score; i++) {
+        timer = timer - 100;
+      }
+      timer = timer < 2000 ? 2000 : timer;
+      this.updateLightsTimer(timer);
+    }
+  }
+
+  retrieveUsername() {
+    this.currentUser = localStorage.getItem('username') || '';
+    if (this.currentUser !== '') {
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      const userFound = users.find(user => user.name === this.currentUser);
+      if (userFound) {
+        this.score = userFound.score;
+        this.maxScore = userFound.maxScore;
+      }
+    }
   }
 
   updateScore(e) {
-    // Only get point if light is green. Otherwise, set points to 0
+    // Only get points if light is green. Otherwise, set points to 0
     if (this.currentLight === 'green') {
+      this.updateGreenLight();
       // Add one point if the button is different from the one previously clicked. Otherwise, subtract one point
       if (this.lastButtonPressed !== e.detail.buttonId) {
         this.score = this.score + 1;
@@ -72,13 +104,53 @@ export class Gamepage extends LitElement {
       }
     } else {
       this.score = 0;
+      this.updateLightsTimer(this.initialTimeout);
+    }
+  }
+
+  handleLogout() {
+    this.addOrUpdateUser();
+    Router.go('/home');
+  }
+
+  addOrUpdateUser() {
+    // Before logging out, create the current user with its points
+    const currentUser = {
+      name: this.currentUser,
+      score: this.score,
+      maxScore: this.maxScore,
+    };
+    // Retrieve the users saved in localStorage
+    let users = JSON.parse(localStorage.getItem('users'));
+    if (!users) {
+      // No previous users, create the whole property with one entry in localStorage
+      users = [];
+      users.push(currentUser);
+      localStorage.setItem('users', JSON.stringify(users));
+    } else {
+      // There are users, find if there is one that can be updated
+      const userFound = users.find(user => user.name === currentUser.name);
+      if (userFound) {
+        // User can be updated with its latest score
+        const index = users.findIndex(user => user.name === currentUser.name);
+        users[index] = currentUser;
+      } else {
+        // No previous user with that name, just add it to the list
+        users.push(currentUser);
+      }
+      localStorage.setItem('users', JSON.stringify(users));
     }
   }
 
   render() {
     return html`
-      <app-header></app-header>
-      <span>Puntuacion: ${this.score}</span>
+      <app-header
+        username="${this.currentUser}"
+        iconName="log-out"
+        @logout="${this.handleLogout}"
+      >
+      </app-header>
+      <span>Puntos: ${this.score}</span>
       <app-lights currentLight="${this.currentLight}"></app-lights>
       <div class="game__buttons">
         <app-button
@@ -90,7 +162,7 @@ export class Gamepage extends LitElement {
           @button-click="${this.updateScore}"
         ></app-button>
       </div>
-      <small>Puntuación máxima: ${this.maxScore}</small>
+      <small>Máxima puntuación: ${this.maxScore}</small>
     `;
   }
 }
