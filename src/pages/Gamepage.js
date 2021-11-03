@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import { Router } from '@vaadin/router';
 import '../components/Lights.js';
 import '../components/Header.js';
 import '../components/Button.js';
@@ -6,6 +7,7 @@ import '../components/Button.js';
 export class Gamepage extends LitElement {
   static get properties() {
     return {
+      username: { type: String },
       currentLight: { type: String },
       lastButtonPressed: { type: String },
       score: { type: Number },
@@ -35,6 +37,7 @@ export class Gamepage extends LitElement {
 
   constructor() {
     super();
+    this.username = '';
     this.currentLight = 'green';
     this.score = 0;
     this.maxScore = 0;
@@ -43,6 +46,7 @@ export class Gamepage extends LitElement {
 
   firstUpdated() {
     this.updateLightsTimer(this.initialTimeout);
+    this.retrieveUsername();
   }
 
   updateLightsTimer(timeout) {
@@ -75,6 +79,10 @@ export class Gamepage extends LitElement {
     }
   }
 
+  retrieveUsername() {
+    this.username = localStorage.getItem('username') || '';
+  }
+
   updateScore(e) {
     // Only get points if light is green. Otherwise, set points to 0
     if (this.currentLight === 'green') {
@@ -93,9 +101,19 @@ export class Gamepage extends LitElement {
     }
   }
 
+  handleLogout() {
+    localStorage.removeItem('username');
+    Router.go('/home');
+  }
+
   render() {
     return html`
-      <app-header></app-header>
+      <app-header
+        username="${this.username}"
+        iconName="log-out"
+        @logout="${this.handleLogout}"
+      >
+      </app-header>
       <span>Puntos: ${this.score}</span>
       <app-lights currentLight="${this.currentLight}"></app-lights>
       <div class="game__buttons">

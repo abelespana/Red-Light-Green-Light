@@ -1,17 +1,10 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html } from 'lit';
 
 export class Button extends LitElement {
   static get properties() {
     return {
       value: { type: String },
     };
-  }
-
-  static get styles() {
-    return css`
-      :host {
-      }
-    `;
   }
 
   constructor() {
