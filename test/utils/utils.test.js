@@ -9,12 +9,12 @@ describe('Testing all the util functions', () => {
 
   it('should return true with the given username', () => {
     const isValid = validateUsername(username);
-    expect(isValid).to.equal(true);
+    expect(isValid).to.be.true;
   });
 
   it('should return false with the given username', () => {
     username = 'short';
     const isValid = validateUsername(username);
-    expect(isValid).to.equal(false);
+    expect(isValid).to.be.false;
   });
 });
