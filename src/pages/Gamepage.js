@@ -7,13 +7,14 @@ import '../components/Button.js';
 export class Gamepage extends LitElement {
   static get properties() {
     return {
-      currentUser: { type: String },
       currentLight: { type: String },
-      lastButtonPressed: { type: String },
-      score: { type: Number },
-      maxScore: { type: Number },
-      initialTimeout: { type: Number },
-      interval: { type: Number },
+      currentUser: { type: String },
+      _lastButtonPressed: { type: String },
+      _score: { type: Number },
+      _maxScore: { type: Number },
+      _initialTimeout: { type: Number },
+      _interval: { type: Number },
+      _buttons: { type: Array },
     };
   }
 
@@ -38,20 +39,26 @@ export class Gamepage extends LitElement {
   constructor() {
     super();
     this.currentLight = 'green';
-    this.score = 0;
-    this.maxScore = 0;
-    this.initialTimeout = 3000;
+    this._score = 0;
+    this._maxScore = 0;
+    this._initialTimeout = 3000;
+    this._buttons = ['left', 'right'];
   }
 
   firstUpdated() {
-    this.updateLightsTimer(this.initialTimeout);
-    this.retrieveUsername();
+    this._updateLightsTimer(this._initialTimeout);
+    this._retrieveUsername();
   }
 
-  updateLightsTimer(timeout) {
-    // console.log(`timeout fijado en ${timeout}`);
-    clearInterval(this.interval);
-    this.interval = setInterval(() => {
+  /**
+   * Set and clear a time interval in which the light switches color
+   * @param { number } timeout Time in miliseconds that the interval will last
+   * @private
+   */
+  _updateLightsTimer(timeout) {
+    console.log(`timeout set to ${timeout}`);
+    clearInterval(this._interval);
+    this._interval = setInterval(() => {
       switch (this.currentLight) {
         case 'green':
           this.currentLight = 'red';
@@ -65,60 +72,81 @@ export class Gamepage extends LitElement {
     }, timeout);
   }
 
-  updateGreenLight() {
-    if (this.score === 0) {
-      this.updateLightsTimer(10000);
+  /**
+   * Launch the updateLightsTimer interval by with different times based on user's score
+   * @private
+   */
+  _updateGreenLight() {
+    if (this._score === 0) {
+      this._updateLightsTimer(10000);
     } else {
       let timer = 10000;
-      for (let i = 0; i < this.score; i++) {
+      for (let i = 0; i < this._score; i++) {
         timer = timer - 100;
       }
       timer = timer < 2000 ? 2000 : timer;
-      this.updateLightsTimer(timer);
+      this._updateLightsTimer(timer);
     }
   }
 
-  retrieveUsername() {
+  /**
+   * Set and clear a time interval during which the light switches color
+   * @private
+   */
+  _retrieveUsername() {
     this.currentUser = localStorage.getItem('username') || '';
     if (this.currentUser !== '') {
       const users = JSON.parse(localStorage.getItem('users')) || [];
       const userFound = users.find(user => user.name === this.currentUser);
       if (userFound) {
-        this.score = userFound.score;
-        this.maxScore = userFound.maxScore;
+        this._score = userFound.score;
+        this._maxScore = userFound.maxScore;
       }
     }
   }
 
-  updateScore(e) {
+  /**
+   * Update user's score based on the current active light and the button that was pressed
+   * @param { event } e The custom event sent by the button component, from which the clicked button can be read
+   * @private
+   */
+  _updateScore(e) {
     // Only get points if light is green. Otherwise, set points to 0
     if (this.currentLight === 'green') {
-      this.updateGreenLight();
+      this._updateGreenLight();
       // Add one point if the button is different from the one previously clicked. Otherwise, subtract one point
-      if (this.lastButtonPressed !== e.detail.buttonId) {
-        this.score = this.score + 1;
-        this.maxScore = this.score;
-        this.lastButtonPressed = e.detail.buttonId;
+      if (this._lastButtonPressed !== e.detail.buttonId) {
+        this._score = this._score + 1;
+        this._maxScore = this._score;
+        this._lastButtonPressed = e.detail.buttonId;
       } else {
-        this.score = this.score === 0 ? (this.score = 0) : this.score - 1;
+        this._score = this._score === 0 ? 0 : this._score - 1;
       }
     } else {
-      this.score = 0;
-      this.updateLightsTimer(this.initialTimeout);
+      this._score = 0;
+      this._updateLightsTimer(this._initialTimeout);
     }
   }
 
-  handleLogout() {
-    this.addOrUpdateUser();
+  /**
+   * Handles the custom event for logout sent by the header component
+   * @private
+   */
+  _handleLogout() {
+    this._addOrUpdateUser();
     Router.go('/home');
   }
 
-  addOrUpdateUser() {
+  /**
+   * Update the current user score or creates it if doesn't exist
+   * @private
+   */
+  _addOrUpdateUser() {
     // Before logging out, create the current user with its points
     const currentUser = {
       name: this.currentUser,
-      score: this.score,
-      maxScore: this.maxScore,
+      score: this._score,
+      maxScore: this._maxScore,
     };
     // Retrieve the users saved in localStorage
     let users = JSON.parse(localStorage.getItem('users'));
@@ -129,6 +157,7 @@ export class Gamepage extends LitElement {
       localStorage.setItem('users', JSON.stringify(users));
     } else {
       // There are users, find if there is one that can be updated
+      // TODO: investigar el index que devuelve el find
       const userFound = users.find(user => user.name === currentUser.name);
       if (userFound) {
         // User can be updated with its latest score
@@ -147,22 +176,21 @@ export class Gamepage extends LitElement {
       <app-header
         username="${this.currentUser}"
         iconName="log-out"
-        @logout="${this.handleLogout}"
+        @logout="${this._handleLogout}"
       >
       </app-header>
-      <span>Puntos: ${this.score}</span>
+      <span>Puntos: ${this._score}</span>
       <app-lights currentLight="${this.currentLight}"></app-lights>
       <div class="game__buttons">
-        <app-button
-          value="left"
-          @button-click="${this.updateScore}"
-        ></app-button>
-        <app-button
-          value="right"
-          @button-click="${this.updateScore}"
-        ></app-button>
+        ${this._buttons.map(
+          button =>
+            html`<app-button
+              .value="${button}"
+              @button-click="${this._updateScore}"
+            ></app-button>`
+        )}
       </div>
-      <small>Máxima puntuación: ${this.maxScore}</small>
+      <small>Máxima puntuación: ${this._maxScore}</small>
     `;
   }
 }
