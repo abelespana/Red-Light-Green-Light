@@ -6,8 +6,8 @@ import { validateUsername } from '../utils/utils.js';
 export class Homepage extends LitElement {
   static get properties() {
     return {
-      username: { type: String },
-      usernameValid: { type: Boolean },
+      _username: { type: String },
+      _usernameValid: { type: Boolean },
     };
   }
 
@@ -25,17 +25,26 @@ export class Homepage extends LitElement {
 
   constructor() {
     super();
-    this.username = '';
+    this._username = '';
   }
 
-  handleInputChange(ev) {
-    this.username = ev.target.value;
+  /**
+   * Updates the username property
+   * @param { event } ev The whole event sent by the button, from which the value can be extracted
+   * @private
+   */
+  _handleInputChange(ev) {
+    this._username = ev.target.value;
   }
 
-  addNewUser() {
-    this.usernameValid = validateUsername(this.username);
-    if (this.usernameValid) {
-      localStorage.setItem('username', this.username);
+  /**
+   * Using an imported validator, check if the username choosen by the player is a valid one (>= 6 characters). If so, navigate to the game. Otherwise, show error message
+   * @private
+   */
+  _addNewUser() {
+    this._usernameValid = validateUsername(this._username);
+    if (this._usernameValid) {
+      localStorage.setItem('username', this._username);
       Router.go('/game');
     } else {
       Swal.fire({
@@ -46,18 +55,22 @@ export class Homepage extends LitElement {
     }
   }
 
-  renderForm() {
+  /**
+   * renders an input with a label and a button
+   * @private
+   */
+  _renderForm() {
     return html`
       <div class="form">
         <label>Nombre de usuario</label>
-        <input .value="${this.username}" @keyup="${this.handleInputChange}" />
-        <button type="button" @click="${this.addNewUser}">Unirme</button>
+        <input .value="${this._username}" @keyup="${this._handleInputChange}" />
+        <button type="button" @click="${this._addNewUser}">Unirme</button>
       </div>
     `;
   }
 
   render() {
-    return html` ${this.renderForm()} `;
+    return html` ${this._renderForm()} `;
   }
 }
 
