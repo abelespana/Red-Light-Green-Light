@@ -56,7 +56,6 @@ export class Gamepage extends LitElement {
    * @private
    */
   _updateLightsTimer(timeout) {
-    console.log(`timeout set to ${timeout}`);
     clearInterval(this._interval);
     this._interval = setInterval(() => {
       switch (this.currentLight) {
