@@ -23,7 +23,20 @@ export class RedLightGreenLight extends LitElement {
     `;
   }
 
+  async registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      try {
+        await navigator.serviceWorker.register('../sw.js');
+      } catch (e) {
+        console.error('Service worker registration failed');
+      }
+    } else {
+      console.info('Service workers are not supported in this browser');
+    }
+  }
+
   firstUpdated() {
+    this.registerServiceWorker();
     const node = this.renderRoot.querySelector('.router-node');
     const router = new Router(node);
 

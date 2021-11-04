@@ -53,7 +53,10 @@
     "rules": {
       "operator-assignment": "off",
       "class-methods-use-this": "off",
-      "no-plusplus": "off"
+      "no-plusplus": "off",
+      "no-console": "off",
+      "no-restricted-globals": "off",
+      "no-undef": "off"
     }
   },
   "prettier": {
