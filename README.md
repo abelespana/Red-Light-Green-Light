@@ -15,6 +15,7 @@ Aplicación Web Progresiva realizada en Lit Element. Pequeño juego donde se deb
 
 ### Características técnicas y requisitos
 - Se utiliza `localStorage` como API de persistencia de datos entre sesiones.
+- Se han añadido tanto un fichero `manifest.json` como un `service Worker` para que la aplicación pueda funcionar como PWA.
 - Se utilizan dependencias externas y librerías para la navegación entre páginas y mostrar alertas, así como iconos.
 - El único requisito es tener Node instalado en el equipo
 
