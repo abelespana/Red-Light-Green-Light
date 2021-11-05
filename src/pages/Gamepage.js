@@ -83,9 +83,26 @@ export class Gamepage extends LitElement {
       for (let i = 0; i < this._score; i++) {
         timer = timer - 100;
       }
+      timer = this._addTimerVariation(timer);
       timer = timer < 2000 ? 2000 : timer;
       this._updateLightsTimer(timer);
     }
+  }
+
+  /**
+   * Add or subtract 1500 miliseconds to the current timer, to make the duration less predictable
+   * @params { number } timer. The timer it's going to be updated either to add or to substract 1500 miliseconds based on a random calculation
+   * @private
+   */
+  _addTimerVariation(timer) {
+    const factor = Math.round(Math.random());
+    let newTimer;
+    if (factor === 0) {
+      newTimer = timer + 1500;
+    } else {
+      newTimer = timer - 1500;
+    }
+    return newTimer;
   }
 
   /**
@@ -116,7 +133,8 @@ export class Gamepage extends LitElement {
       // Add one point if the button is different from the one previously clicked. Otherwise, subtract one point
       if (this._lastButtonPressed !== e.detail.buttonId) {
         this._score = this._score + 1;
-        this._maxScore = this._score;
+        this._maxScore =
+          this._score > this._maxScore ? this._score : this._maxScore;
         this._lastButtonPressed = e.detail.buttonId;
       } else {
         this._score = this._score === 0 ? 0 : this._score - 1;
