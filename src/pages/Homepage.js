@@ -3,6 +3,8 @@ import Swal from 'sweetalert2';
 import { Router } from '@vaadin/router';
 import { validateUsername } from '../utils/utils.js';
 
+import '../components/Button.js';
+
 export class Homepage extends LitElement {
   static get properties() {
     return {
@@ -64,7 +66,10 @@ export class Homepage extends LitElement {
       <div class="form">
         <label>Nombre de usuario</label>
         <input .value="${this._username}" @keyup="${this._handleInputChange}" />
-        <button type="button" @click="${this._addNewUser}">Unirme</button>
+        <app-button
+          value="Unirme"
+          @button-click=${this._addNewUser}
+        ></app-button>
       </div>
     `;
   }
