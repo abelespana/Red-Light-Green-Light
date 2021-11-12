@@ -40,7 +40,7 @@ export class Homepage extends LitElement {
   }
 
   /**
-   * Using an imported validator, check if the username choosen by the player is a valid one (>= 6 characters). If so, navigate to the game. Otherwise, show error message
+   * Using an imported validator, check if the username chosen by the player is a valid one (>= 6 characters). If so, navigate to the game. Otherwise, show error message
    * @private
    */
   _addNewUser() {

@@ -52,7 +52,7 @@ export class Gamepage extends LitElement {
 
   /**
    * Set and clear a time interval in which the light switches color
-   * @param { number } timeout Time in miliseconds that the interval will last
+   * @param { number } timeout Time in milliseconds that the interval will last
    * @private
    */
   _updateLightsTimer(timeout) {
@@ -90,8 +90,8 @@ export class Gamepage extends LitElement {
   }
 
   /**
-   * Add or subtract 1500 miliseconds to the current timer, to make the duration less predictable
-   * @params { number } timer. The timer it's going to be updated either to add or to substract 1500 miliseconds based on a random calculation
+   * Add or subtract 1500 milliseconds to the current timer, to make the duration less predictable
+   * @params { number } timer. The timer it's going to be updated either to add or to subtract 1500 milliseconds based on a random calculation
    * @private
    */
   _addTimerVariation(timer) {
